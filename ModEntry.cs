@@ -19,6 +19,10 @@ using StardewValley.Tools;
 // - Stardew Raider: Each character gives you a little hint to the location of a relic
 // - Spelling Dew Valley: Each character gives you a letter that spells which person is the right one. And target person gives you a bad letter
 
+// IDEARS!
+// LowlandVik: Is there anyway to include something like "The person name includes chr() and last seen near <direction>?"
+// LowlandVik: Or maybe how close a person is to another npc =\
+
 // THE DETECTIVE PLAN
 // - the suspect list
 // - lots of hiding locations

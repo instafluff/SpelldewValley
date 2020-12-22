@@ -65,4 +65,60 @@
     </PropertyGroup>
     <Error Condition="!Exists('packages\Pathoschild.Stardew.ModBuildConfig.3.2.2\build\Pathoschild.Stardew.ModBuildConfig.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Pathoschild.Stardew.ModBuildConfig.3.2.2\build\Pathoschild.Stardew.ModBuildConfig.targets'))" />
   </Target>
+  <ItemGroup>
+	  <ModContentFiles Include="$(TargetName)Content\*.json"/>
+  </ItemGroup>
+  <Target Name="Zip" BeforeTargets="AfterBuild">
+	  <ItemGroup>
+		  <OutputManifest Include="manifest.json"/>
+		  <OutputFiles Include="$(OutDir)\*.dll;$(OutDir)\*.pdb"/>
+	  </ItemGroup>
+	  <Copy
+		  SourceFiles="@(OutputManifest)"
+		  DestinationFolder="bin\Output\$(TargetName)"
+	  />
+	  <Copy
+		  SourceFiles="@(OutputFiles)"
+		  DestinationFolder="bin\Output\$(TargetName)"
+	  />
+	  <Copy
+		  SourceFiles="@(ModContentFiles)"
+		  DestinationFolder="bin\Output\$(TargetName)Content"
+	  />
+	  <Delete Files="bin\$(TargetName)Full.zip" />
+	  <Delete Files="bin\Output\*.*" />
+	  <ZipDir
+	    ZipFileName="bin\$(TargetName)Full.zip"
+	    DirectoryName="bin\Output"
+	  />
+  </Target>
+  <UsingTask TaskName="ZipDir" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v12.0.dll">
+	  <ParameterGroup>
+	    <ZipFileName ParameterType="System.String" Required="true" />
+	    <DirectoryName ParameterType="System.String" Required="true" />
+	  </ParameterGroup>
+	  <Task>
+	    <Reference Include="System.IO.Compression.FileSystem" />
+	    <Using Namespace="System.IO.Compression" />
+	    <Code Type="Fragment" Language="cs"><![CDATA[
+	      try
+	      {
+	        Log.LogMessage(string.Format("Zipping Directory {0} to {1}", DirectoryName, ZipFileName));
+	        ZipFile.CreateFromDirectory( DirectoryName, ZipFileName );
+	        return true;
+	      }
+	      catch(Exception ex)
+	      {
+	        Log.LogErrorFromException(ex);
+	        return false;
+	      }
+	    ]]></Code>
+	  </Task>
+	</UsingTask>
+	<Target Name="AfterZip" AfterTargets="Zip">
+		<Copy
+			SourceFiles="@(ModContentFiles)"
+			DestinationFolder="$(GameModsPath)\$(TargetName)Content"
+		/>
+	</Target>
 </Project>
